@@ -3,13 +3,21 @@ package main
 import (
 	"booking-app/helper"
 	"fmt"
-	"strconv"
+	"time"
 )
 
 const conferenceTickets = 50
 var conferenceName = "Go Conference"
 var remainingTickets(uint)  = 50
- var bookings = make([]map[string]string,0)
+ var bookings = make([]UserData,0)
+ var remainingTkt uint = 0
+
+ type UserData struct {
+	firstName string
+	lastName string
+	email string
+	numberOfTickets uint
+ }
 
 func main() {
 
@@ -23,9 +31,8 @@ func main() {
 
 		if isValidName && isValidEmail  && isValidTicketNumber{
 
- 
-			//bookTicket function
-			bookTicket( userTickets, bookings, firstName,  lastName, email )
+			remainingTkt = bookTicket(userTickets, firstName,  lastName, email )
+			sendTicket(userTickets, firstName, lastName, email)
 
             firstNames := getFirstNames()
 			fmt.Printf("The first names of booking are : %v\n", firstNames)
@@ -45,11 +52,11 @@ func main() {
 			}
 
 			if !isValidEmail{
-				fmt.Println("email address you entered doesn't contain  that c @")
+				fmt.Println("email address you entered doesn't contain  that character @")
 			}
 
 			if !isValidTicketNumber{
-				fmt.Println("number of tickets you entered is invalid")
+				fmt.Printf("number of tickets you entered is invalid, There are %v remaining, but you are requesting %v ticket(s)\n", remainingTkt, userTickets )
 			}
 			
 		}
@@ -63,7 +70,7 @@ func greetUsers (){
 	
 	fmt.Printf("Welcome to our  %v booking applications\n", conferenceName)
 	fmt.Printf("We have total of %v tickets and %v are still available.\n", conferenceTickets, remainingTickets)
-	fmt.Println("Get your tickets here to attend ")
+	fmt.Println("Get your tickets here to attend\n ")
 }
 
 
@@ -72,15 +79,12 @@ func getFirstNames () [] string{
 	firstNames := []string {}
 			for _, booking := range bookings {
 				
-				firstNames = append(firstNames, booking["firstName"])
+				firstNames = append(firstNames, booking.firstName)
 
 			}
  return firstNames
 
 }
-
-
-
 
 func getUserInput () (string, string, string, uint){
 
@@ -92,13 +96,13 @@ func getUserInput () (string, string, string, uint){
 	fmt.Println("Enter your first name : ")
 	fmt.Scan(&firstName)
 
-	fmt.Println("Enter your last name: ")
+	fmt.Println("Enter your last name : ")
 	fmt.Scan(&lastName)
 
-	fmt.Println("Enter your email: ")
+	fmt.Println("Enter your email : ")
 	fmt.Scan(&email)
 
-	fmt.Println("Enter number of tickets:  ")
+	fmt.Println("Enter number of tickets :  ")
 	fmt.Scan(&userTickets)
 
 	return firstName, lastName, email, userTickets
@@ -106,22 +110,34 @@ func getUserInput () (string, string, string, uint){
 }
 
 
-func bookTicket ( userTickets uint, bookings []map[string]string, firstName string, lastName string, email string){
+func bookTicket ( userTickets uint, firstName string, lastName string, email string) uint {
 
 	remainingTickets = remainingTickets - userTickets
 
-	var userData = make(map[string]string)
+	var userData = UserData{
+		firstName: firstName,
+		lastName: lastName,
+		email: email,
+		numberOfTickets: userTickets,
 
-	userData["firstName"] = firstName
-	userData["lastName"] = lastName
-	userData["email"] = email
-	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets),10)
+	}
 
 
 	bookings = append(bookings, userData)
 	fmt.Printf("List of booking is %v\n", bookings)
 
 	fmt.Printf("Thank you %v %v for booking tickets. You will receive a confirmation email at %v and %v %v are still available.\n",firstName,lastName, email, remainingTickets, conferenceName)
-	fmt.Printf("%v tickets  remaining  for this %v", remainingTickets, conferenceName)
-	fmt.Printf("The list of %v", bookings)
+	fmt.Printf("%v tickets  remaining  for this %v\n", remainingTickets, conferenceName)
+	fmt.Printf("The list of %v\n", bookings)
+
+	return remainingTickets
+}
+
+
+func sendTicket(userTickets uint, firstName string, lastName string, email string){
+	
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("########################")
+	fmt.Printf("Sending tickets: %v to email address %v\n", ticket, email)
+	fmt.Printf("########################\n")
 }
